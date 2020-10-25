@@ -12,7 +12,7 @@ var monsterRoutes = require('./api/routes/monsters');
 var abilityRoutes = require('./api/routes/abilities');
 
 let app = express();
-let port = process.env.PORT || 8081;
+let port = process.env.PORT || 8080;
 
 // Mongoose instance connection url connection
 const databaseUrl = process.env.CBD_DB_URL;
