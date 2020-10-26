@@ -16,14 +16,9 @@ var abilityRoutes = require('./api/routes/abilities');
 const wss = new WebSocket.Server({ port: 8082 });
 
 wss.on('connection', (ws) => {
-    let initEvent = {
-        type: "INIT",
-        eventData: {
-            results: {},
-            encounterTable
-        }
-    }
-    ws.send(JSON.stringify(initEvent, null, 5));
+    ws.on('message', (message) => {
+        console.log("FART");
+    });
 });
 
 wss.on('message', () => {
