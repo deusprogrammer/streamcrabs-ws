@@ -43,8 +43,8 @@ wss.on('connection', (ws) => {
                         clients[decoded.user_id] = ws;
                     } else {
                         if (event.to === "ALL") {
-                            clients.forEach((to) => {
-                                to.send(JSON.stringify(event));
+                            Object.keys(clients).forEach((key) => {
+                                clients[key].send(JSON.stringify(event));
                             })
                         } else {
                             let to = clients[event.to];
