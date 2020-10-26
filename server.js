@@ -91,7 +91,6 @@ app
         if (req.headers['authorization']) {
             let [ type, auth ] = req.headers['authorization'].split(' ');
             console.log("AUTH :   " + auth);
-            console.log("SECRET : " + secret);
             console.log("KEY :    " + key);
             if (type == 'Bearer') {
                 jwt.verify(
