@@ -2,7 +2,6 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyparser from 'body-parser';
 import cors from 'cors';
-import e from 'express';
 
 const jwt = require('jsonwebtoken');
 const WebSocket = require('ws');
@@ -29,17 +28,18 @@ wss.on('connection', (ws) => {
         console.log("MESSAGE: " + JSON.stringify(event, null, 5));
         if (event.jwt) {
             jwt.verify(
-                auth,
+                event.jwt,
                 secret,
                 (err, decoded) => {
                     if (err) {
-                        console.log('JWT Error', err);
+                        console.error('JWT Error', err);
                         return;
                     }
 
                     event.jwt = null;
 
                     if (event.type === "REGISTER") {
+                        console.log(`USER ${decoded.user_id} REGISTERED`);
                         clients[decoded.user_id] = ws;
                     } else {
                         if (event.to === "ALL") {
@@ -48,13 +48,16 @@ wss.on('connection', (ws) => {
                             })
                         } else {
                             let to = clients[event.to];
+                            if (!to) {
+                                console.error("Cannot find client");
+                                return;
+                            }
+                            console.log("TO" + to);
                             to.send(JSON.stringify(event));
                         }
                     }
                 }
             );
-    
-            return;
         }
     });
 });
