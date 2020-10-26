@@ -89,9 +89,8 @@ app.use(cors());
 app
     .use('/:route?', (req, res, next) => {
         if (req.headers['authorization']) {
-            let [ type, auth ] = req.headers['authorization'].split(' ');
             console.log("AUTH :   " + req.headers['authorization']);
-            console.log("KEY :    " + key);
+            let [ type, auth ] = req.headers['authorization'].split(' ');
             if (type == 'Bearer') {
                 jwt.verify(
                     auth,
