@@ -41,6 +41,15 @@ wss.on('connection', (ws) => {
                     if (event.type === "REGISTER") {
                         console.log(`USER ${decoded.user_id} REGISTERED`);
                         clients[decoded.user_id] = ws;
+                    } else if (event.type === "PING_SERVER") {
+                        console.log(`USER ${decoded.user.id} PING_SERVER`);
+                        let to = clients[decoded.user.id];
+                        if (!to) {
+                            return;
+                        }
+                        to.send(JSON.stringify({
+                            type: "PONG_SERVER"
+                        }));
                     } else {
                         if (event.to === "ALL") {
                             Object.keys(clients).forEach((key) => {
@@ -52,7 +61,6 @@ wss.on('connection', (ws) => {
                                 console.error("Cannot find client");
                                 return;
                             }
-                            console.log("TO" + to);
                             to.send(JSON.stringify(event));
                         }
                     }
