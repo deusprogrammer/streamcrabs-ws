@@ -43,7 +43,7 @@ wss.on('connection', (ws) => {
                         clients[decoded.user_id] = ws;
                     } else if (event.type === "PING_SERVER") {
                         console.log(`USER ${decoded.user_id} PING_SERVER`);
-                        let to = clients[decoded.user.id];
+                        let to = clients[decoded.user_id];
                         if (!to) {
                             return;
                         }
