@@ -42,7 +42,7 @@ wss.on('connection', (ws) => {
                         console.log(`USER ${decoded.user_id} REGISTERED`);
                         clients[decoded.user_id] = ws;
                     } else if (event.type === "PING_SERVER") {
-                        console.log(`USER ${decoded.user.id} PING_SERVER`);
+                        console.log(`USER ${decoded.user_id} PING_SERVER`);
                         let to = clients[decoded.user.id];
                         if (!to) {
                             return;
