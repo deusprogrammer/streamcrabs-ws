@@ -37,6 +37,7 @@ wss.on('connection', (ws) => {
                     }
 
                     event.jwt = null;
+                    event.from = decoded.user_id;
 
                     if (event.type === "REGISTER") {
                         console.log(`USER ${decoded.user_id} REGISTERED`);

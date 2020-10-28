@@ -1,8 +1,12 @@
 import express from 'express'; 
+import axios from 'axios';
 var router = express.Router();
+
 import Users from '../models/users';
 import Items from '../models/items';
 import {getAuthenticatedTwitchUserName} from '../utils/SecurityHelper';
+
+const BATTLE_BOT_JWT = process.env.BATTLE_BOT_JWT;
 
 router.route("/")
     .get(async (request, response) => {
@@ -11,6 +15,69 @@ router.route("/")
             return response.json(results);
         } catch (e) {
             console.error("ERROR IN GET ALL: " + e.stack);
+            response.status(500);
+            return response.send(e);
+        }
+    })
+    .post(async (request, response) => {
+        try {
+            let userId = getAuthenticatedTwitchUserName(request);
+            let username = request.body.name;
+
+            // Create a user for profile service so the main UI page can be accessed
+            await axios.post(`http://10.0.0.243:8090/users`, {
+                username: username,
+                password: Util.randomUuid(),
+                connected: {
+                    twitch: {
+                        userId: userId,
+                        name: username
+                    }
+                }
+            }, {
+                headers: {
+                    contentType: "application/json",
+                    Authorization: `Bearer ${BATTLE_BOT_JWT}`
+                }
+            });
+
+            let user = {
+                id: userId,
+                name: username,
+                currentJob: {
+                    id: "SQUIRE"
+                },
+                ap: 2,
+                hp: 100,
+                mp: 10,
+                equipment: {
+                    hand: {
+                        id: "LONG_SWORD"
+                    },
+                    offhand: {},
+                    head: {
+                        id: "LEATHER_CAP"
+                    },
+                    body: {
+                        id: "LEATHER_CURIASS"
+                    },
+                    arms: {
+                        id: "LEATHER_GAUNTLETS"
+                    },
+                    legs: {
+                        id: "LEATHER_PANTS"
+                    }
+                }, inventory: [
+                    "POTION",
+                    "POTION"
+                ],
+                gold: 100
+            };
+
+            let results = await Users.create(user).exec();
+            return response.json(results);
+        } catch (e) {
+            console.error("ERROR IN CREATE: " + e.stack);
             response.status(500);
             return response.send(e);
         }
