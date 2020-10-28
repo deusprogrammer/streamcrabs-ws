@@ -8,6 +8,10 @@ import {getAuthenticatedTwitchUserName} from '../utils/SecurityHelper';
 
 const BATTLE_BOT_JWT = process.env.BATTLE_BOT_JWT;
 
+const randomUuid = () => {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
 router.route("/")
     .get(async (request, response) => {
         try {
@@ -27,7 +31,7 @@ router.route("/")
             // Create a user for profile service so the main UI page can be accessed
             await axios.post(`http://10.0.0.243:8090/users`, {
                 username: username,
-                password: Util.randomUuid(),
+                password: randomUuid(),
                 connected: {
                     twitch: {
                         userId: userId,
