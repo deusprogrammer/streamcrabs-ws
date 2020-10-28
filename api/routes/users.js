@@ -57,7 +57,7 @@ router.route("/")
                 currentJob: {
                     id: "SQUIRE"
                 },
-                ap: 2,
+                ap: 100,
                 hp: 100,
                 mp: 10,
                 equipment: {
