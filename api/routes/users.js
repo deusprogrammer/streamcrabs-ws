@@ -29,21 +29,27 @@ router.route("/")
             let username = request.body.name;
 
             // Create a user for profile service so the main UI page can be accessed
-            await axios.post(`http://10.0.0.243:8090/users`, {
-                username: username,
-                password: randomUuid(),
-                connected: {
-                    twitch: {
-                        userId: userId,
-                        name: username
+            try {
+                await axios.post(`http://10.0.0.243:8090/users`, {
+                    username: username,
+                    password: randomUuid(),
+                    connected: {
+                        twitch: {
+                            userId: userId,
+                            name: username
+                        }
                     }
+                }, {
+                    headers: {
+                        contentType: "application/json",
+                        Authorization: `Bearer ${BATTLE_BOT_JWT}`
+                    }
+                });
+            } catch (error) {
+                if (error.response && error.response.status != 409) {
+                    throw error;
                 }
-            }, {
-                headers: {
-                    contentType: "application/json",
-                    Authorization: `Bearer ${BATTLE_BOT_JWT}`
-                }
-            });
+            }
 
             let user = {
                 id: userId,
