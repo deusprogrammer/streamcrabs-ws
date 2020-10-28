@@ -46,7 +46,7 @@ router.route("/")
                     }
                 });
             } catch (error) {
-                if (error.response && error.response.status != 409) {
+                if (error.response && error.response.status !== 409) {
                     throw error;
                 }
             }
@@ -84,7 +84,7 @@ router.route("/")
                 gold: 100
             };
 
-            let results = await Users.create(user).exec();
+            let results = await Users.create(user);
             return response.json(results);
         } catch (e) {
             console.error("ERROR IN CREATE: " + e.stack);
