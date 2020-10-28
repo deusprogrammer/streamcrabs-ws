@@ -7,6 +7,7 @@ var abilitySchema = new mongoose.Schema({
         unique: true
     },
     name: String,
+    description: String,
     ap: {
         type: Number,
         default: 1

@@ -9,6 +9,7 @@ var itemSchema = new mongoose.Schema({
     type: String,
     slot: String,
     name: String,
+    description: String,
     use: String,
     dmg: String,
     dmgStat: {
