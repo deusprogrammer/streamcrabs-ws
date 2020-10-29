@@ -43,8 +43,8 @@ wss.on('connection', async (ws) => {
 
                     event.jwt = null;
                     event.from = decoded.user_id;
-                    event.signature = "";
-                    event.signature = hmacSHA1(key, JSON.stringify(event));
+                    event.ts = Date.now();
+                    event.signature = hmacSHA1(key, event.to + event.from + event.ts);
 
                     if (event.type === "REGISTER") {
                         console.log(`USER ${decoded.user_id} REGISTERED`);
@@ -55,13 +55,20 @@ wss.on('connection', async (ws) => {
                         if (!to) {
                             return;
                         }
-                        to.send(JSON.stringify({
-                            type: "PONG_SERVER"
-                        }));
+                        let newEvent = {
+                            type: "PONG_SERVER",
+                            to: event.from,
+                            from: "SERVER",
+                            ts: Date.now()
+                        };
+                        event.signature = hmacSHA1(key, newEvent.to + newEvent.from + newEvent.ts);
+                        to.send(JSON.stringify(newEvent));
                     } else {
                         if (event.to === "ALL") {
                             Object.keys(clients).forEach((key) => {
-                                clients[key].send(JSON.stringify(event));
+                                if (key !== event.from) {
+                                    clients[key].send(JSON.stringify(event));
+                                }
                             })
                         } else {
                             let to = clients[event.to];
