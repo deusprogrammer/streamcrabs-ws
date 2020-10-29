@@ -44,7 +44,7 @@ wss.on('connection', async (ws) => {
                     event.jwt = null;
                     event.from = decoded.user_id;
                     event.signature = "";
-                    event.signature = hmacSHA1(key, event);
+                    event.signature = hmacSHA1(key, JSON.stringify(event));
 
                     if (event.type === "REGISTER") {
                         console.log(`USER ${decoded.user_id} REGISTERED`);
