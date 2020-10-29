@@ -1,10 +1,10 @@
-import express from 'express'; 
+import express from 'express';
 import axios from 'axios';
 var router = express.Router();
 
 import Users from '../models/users';
 import Items from '../models/items';
-import {getAuthenticatedTwitchUserName} from '../utils/SecurityHelper';
+import { getAuthenticatedTwitchUserName } from '../utils/SecurityHelper';
 
 const BATTLE_BOT_JWT = process.env.BATTLE_BOT_JWT;
 
@@ -15,7 +15,7 @@ const randomUuid = () => {
 router.route("/")
     .get(async (request, response) => {
         try {
-            let results = await Users.find({}, null, {sort: {name: 1}}).exec();
+            let results = await Users.find({}, null, { sort: { name: 1 } }).exec();
             return response.json(results);
         } catch (e) {
             console.error("ERROR IN GET ALL: " + e.stack);
@@ -24,14 +24,24 @@ router.route("/")
         }
     })
     .post(async (request, response) => {
+        let userId = getAuthenticatedTwitchUserName(request);
+        let username = request.body.name;
+
         try {
-            let userId = getAuthenticatedTwitchUserName(request);
-            let username = request.body.name;
+            let res = await axios.get(`https://api.twitch.tv/kraken/users/${userId}`, {
+                headers: {
+                    "Client-ID": `z91swgqes7e0y7r8oa1t32u6uokyiw`,
+                    Accept: "application/vnd.twitchtv.v5+json"
+                }
+            });
+
+            let profile = res.data;
+            username = profile.name;
 
             // Create a user for profile service so the main UI page can be accessed
             try {
                 await axios.post(`http://10.0.0.243:8090/users`, {
-                    username: username,
+                    username,
                     password: randomUuid(),
                     connected: {
                         twitch: {
@@ -97,14 +107,14 @@ router.route("/:id")
     .get(async (request, response) => {
         let userId = request.params.id;
         let twitchUser = getAuthenticatedTwitchUserName(request);
-        
+
         if (twitchUser !== userId) {
             response.status(403);
             return response.send("Insufficient privileges");
         }
 
         try {
-            let results = await Users.findOne({id: userId}).exec();
+            let results = await Users.findOne({ id: userId }).exec();
             return response.json(results);
         } catch (e) {
             console.error("ERROR IN GET ONE: " + e);
@@ -122,31 +132,31 @@ router.route("/:id")
         let newUser = request.body;
 
         try {
-            let oldUser = await Users.findOne({id: request.params.id}).exec();
+            let oldUser = await Users.findOne({ id: request.params.id }).exec();
 
             // Revert most fields to whatever is in the database.
-            newUser.id   = oldUser.id;
+            newUser.id = oldUser.id;
             newUser.name = oldUser.name;
-            newUser.ap   = oldUser.ap;
-            newUser.hp   = oldUser.hp;
+            newUser.ap = oldUser.ap;
+            newUser.hp = oldUser.hp;
 
             // Check equipment/inventory changes to make sure that equipment is in inventory first.
             let oldInventory = Object.keys(oldUser.equipment)
-            .filter((slot) => {
-                return oldUser.equipment[slot] && oldUser.equipment[slot].id;
-            })
-            .map((slot) => {
-                return oldUser.equipment[slot].id;
-            });
+                .filter((slot) => {
+                    return oldUser.equipment[slot] && oldUser.equipment[slot].id;
+                })
+                .map((slot) => {
+                    return oldUser.equipment[slot].id;
+                });
             oldInventory = [...oldInventory, ...oldUser.inventory];
 
             let newInventory = Object.keys(newUser.equipment)
-            .filter((slot) => {
-                return newUser.equipment[slot] && newUser.equipment[slot].id;
-            })
-            .map((slot) => {
-                return newUser.equipment[slot].id;
-            });
+                .filter((slot) => {
+                    return newUser.equipment[slot] && newUser.equipment[slot].id;
+                })
+                .map((slot) => {
+                    return newUser.equipment[slot].id;
+                });
             newInventory = [...newInventory, ...newUser.inventory];
 
             newInventory.forEach((item) => {
@@ -157,7 +167,7 @@ router.route("/:id")
             });
 
             // Need item table for next check
-            let items = await Items.find({}, null, {sort: {type: 1, slot: 1, name: 1}}).exec();
+            let items = await Items.find({}, null, { sort: { type: 1, slot: 1, name: 1 } }).exec();
 
             var itemTable = {};
             items.forEach((item) => {
@@ -177,7 +187,7 @@ router.route("/:id")
                 return response.send("You nasty cheater.");
             }
 
-            let results = await Users.updateOne({name: request.params.id}, newUser).exec();
+            let results = await Users.updateOne({ name: request.params.id }, newUser).exec();
 
             return response.json(results);
         } catch (e) {

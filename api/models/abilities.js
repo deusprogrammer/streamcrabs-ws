@@ -21,6 +21,10 @@ var abilitySchema = new mongoose.Schema({
         type: String,
         default: "HIT"
     },
+    ignoreDamageMods: {
+        type: Boolean,
+        default: false
+    },
     target: String,
     area: String,
     element: String,

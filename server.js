@@ -4,13 +4,14 @@ import bodyparser from 'body-parser';
 import cors from 'cors';
 
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const WebSocket = require('ws');
 
-var usersRoutes = require('./api/routes/users');
-var itemRoutes = require('./api/routes/items');
-var jobRoutes = require('./api/routes/jobs');
-var monsterRoutes = require('./api/routes/monsters');
-var abilityRoutes = require('./api/routes/abilities');
+const usersRoutes = require('./api/routes/users');
+const itemRoutes = require('./api/routes/items');
+const jobRoutes = require('./api/routes/jobs');
+const monsterRoutes = require('./api/routes/monsters');
+const abilityRoutes = require('./api/routes/abilities');
 
 // Keys for jwt verification
 const key = process.env.TWITCH_SHARED_SECRET;
@@ -20,8 +21,12 @@ const secret = Buffer.from(key, 'base64');
 const wss = new WebSocket.Server({ port: 8082 });
 const clients = {};
 
+const hmacSHA1 = (key, data) => {
+    return crypto.createHmac('sha1', key).update(data).digest().toString('base64');
+}
+
 // Set up a websocket routing system
-wss.on('connection', (ws) => {
+wss.on('connection', async (ws) => {
     console.log("CONNECTION");
     ws.on('message', (message) => {
         let event = JSON.parse(message);
@@ -38,6 +43,8 @@ wss.on('connection', (ws) => {
 
                     event.jwt = null;
                     event.from = decoded.user_id;
+                    event.signature = "";
+                    event.signature = hmacSHA1(key, event);
 
                     if (event.type === "REGISTER") {
                         console.log(`USER ${decoded.user_id} REGISTERED`);
