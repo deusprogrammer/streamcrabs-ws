@@ -46,6 +46,13 @@ wss.on('connection', async (ws) => {
                     event.ts = Date.now();
                     event.signature = hmacSHA1(key, event.to + event.from + event.ts);
 
+                    if (!clients[event.to] || clients[event.to].readyState !== WebSocket.OPEN) {
+                        clients[event.from].send(JSON.stringify({
+                            type: "SEND_FAILURE"
+                        }));
+                        return;
+                    }
+
                     if (event.type === "REGISTER") {
                         console.log(`USER ${decoded.user_id} REGISTERED`);
                         clients[decoded.user_id] = ws;
