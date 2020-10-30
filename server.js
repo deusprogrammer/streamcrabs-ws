@@ -47,6 +47,7 @@ wss.on('connection', async (ws) => {
                     event.signature = hmacSHA1(key, event.to + event.from + event.ts);
 
                     if ((event.to && event.to.startsWith("BOT-") && !clients[event.to]) || (clients[event.to] && clients[event.to].readyState !== WebSocket.OPEN)) {
+                        console.error(`${event.to} IS NOT ACTIVE`);
                         clients[event.from].send(JSON.stringify({
                             type: "SEND_FAILURE"
                         }));
