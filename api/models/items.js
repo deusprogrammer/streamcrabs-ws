@@ -51,6 +51,14 @@ var itemSchema = new mongoose.Schema({
         of: String,
         default: []
     },
+    triggers: {
+        type: Array,
+        of: {
+            abilityName: String,
+            chance: Number
+        },
+        default: []
+    },
     skills: {
         type: Array,
         of: {

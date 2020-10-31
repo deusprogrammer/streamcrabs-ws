@@ -13,6 +13,10 @@ var abilitySchema = new mongoose.Schema({
         default: 1
     },
     dmg: String,
+    procTime: {
+        type: Number,
+        default: 0
+    },
     dmgStat: {
         type: String,
         default: "HP"
@@ -53,6 +57,14 @@ var abilitySchema = new mongoose.Schema({
             type: Number,
             default: 0
         }
+    },
+    triggers: {
+        type: Array,
+        of: {
+            abilityName: String,
+            chance: Number
+        },
+        default: []
     },
     buffs: String,
     buffsDuration: Number
