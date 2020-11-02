@@ -104,27 +104,27 @@ const databaseUrl = process.env.CBD_DB_URL;
 mongoose.Promise = global.Promise;
 
 // Set up nightly update
-// const agenda = new Agenda({address: "mongodb://10.0.0.244/agenda-db?retryWrites=true"});
-// agenda.define("Replenish Users", async (job, done) => {
-//     console.log("Replenishing users");
-//     let users = await Users.find({}).exec();
-//     for (const user of users) {
-//         user.ap += 10;
-//         if (user.hp === 0) {
-//             user.hp = 100;
-//         }
-//         await Users.update({name: user.name}, user).exec();
-//     }
-//     done();
-// });
+const agenda = new Agenda({db: {address: databaseUrl, collection: "batch-jobs"}});
+agenda.define("Replenish Users", async (job, done) => {
+    console.log("Replenishing users");
+    let users = await Users.find({}).exec();
+    for (const user of users) {
+        user.ap += 10;
+        if (user.hp <= 0) {
+            user.hp = 1;
+        }
+        await Users.updateOne({name: user.name}, user).exec();
+    }
+    done();
+});
 
-// agenda.every("24 hours");
+agenda.every("24 hours");
 
-// (async () => {
-//     const job = agenda.create("Replenish Users");
-//     await agenda.start();
-//     await job.repeatAt("12:45pm").save();
-// })();
+(async () => {
+    const job = agenda.create("Replenish Users");
+    await agenda.start();
+    await job.repeatAt("4:00am").save();
+})();
 
 /*
  * Connect to database
