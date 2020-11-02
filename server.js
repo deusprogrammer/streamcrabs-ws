@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyparser from 'body-parser';
 import cors from 'cors';
+import Agenda from 'agenda';
 
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -12,6 +13,8 @@ const itemRoutes = require('./api/routes/items');
 const jobRoutes = require('./api/routes/jobs');
 const monsterRoutes = require('./api/routes/monsters');
 const abilityRoutes = require('./api/routes/abilities');
+
+const Users = require('./api/models/users');
 
 // Keys for jwt verification
 const key = process.env.TWITCH_SHARED_SECRET;
@@ -99,6 +102,29 @@ let port = process.env.PORT || 8081;
 // Mongoose instance connection url connection
 const databaseUrl = process.env.CBD_DB_URL;
 mongoose.Promise = global.Promise;
+
+// Set up nightly update
+// const agenda = new Agenda({address: "mongodb://10.0.0.244/agenda-db?retryWrites=true"});
+// agenda.define("Replenish Users", async (job, done) => {
+//     console.log("Replenishing users");
+//     let users = await Users.find({}).exec();
+//     for (const user of users) {
+//         user.ap += 10;
+//         if (user.hp === 0) {
+//             user.hp = 100;
+//         }
+//         await Users.update({name: user.name}, user).exec();
+//     }
+//     done();
+// });
+
+// agenda.every("24 hours");
+
+// (async () => {
+//     const job = agenda.create("Replenish Users");
+//     await agenda.start();
+//     await job.repeatAt("12:45pm").save();
+// })();
 
 /*
  * Connect to database

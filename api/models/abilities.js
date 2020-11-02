@@ -17,6 +17,10 @@ var abilitySchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    maxProcs: {
+        type: Number,
+        default: 1
+    },
     dmgStat: {
         type: String,
         default: "HP"

@@ -9,6 +9,10 @@ var monsterSchema = new mongoose.Schema({
     type: String,
     name: String,
     description: String,
+    dungeon: {
+        type: String,
+        default: "GENERIC"
+    },
     hp: Number,
     str: Number,
     dex: Number,

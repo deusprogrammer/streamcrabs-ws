@@ -10,6 +10,10 @@ var itemSchema = new mongoose.Schema({
     slot: String,
     name: String,
     description: String,
+    dungeon: {
+        type: String,
+        default: "GENERIC"
+    },
     use: String,
     dmg: String,
     dmgStat: {
