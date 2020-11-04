@@ -4,7 +4,7 @@ var Abilities = require('../models/abilities');
 
 router.route("/")
     .get((request, response) => {
-        Abilities.find({}, null, {sort: {type: 1, element: 1, target: 1, area: 1, ap: 1, name: 1}}, (error, results) => {
+        Abilities.find({}, null, {sort: {element: 1, target: 1, area: 1, ap: 1, name: 1}}, (error, results) => {
             if (error) {
                 return response.send(error);
             }

@@ -13,6 +13,7 @@ const itemRoutes = require('./api/routes/items');
 const jobRoutes = require('./api/routes/jobs');
 const monsterRoutes = require('./api/routes/monsters');
 const abilityRoutes = require('./api/routes/abilities');
+const statusRoutes = require('./api/routes/statuses');
 
 const Users = require('./api/models/users');
 
@@ -185,6 +186,7 @@ app.use('/items', itemRoutes);
 app.use('/jobs', jobRoutes);
 app.use('/monsters', monsterRoutes);
 app.use('/abilities', abilityRoutes);
+app.use('/statuses', statusRoutes);
 
 app.listen(port);
 console.log('chat-battle-dungeon RESTful API server started on: ' + port);
