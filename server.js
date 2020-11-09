@@ -38,9 +38,11 @@ wss.on('connection', async (ws) => {
         console.log("MESSAGE: " + JSON.stringify(event, null, 5));
         if (event.jwt) {
             let sharedSecret = defaultSecret;
+            let hmacKey = key;
             if (event.channelId) {
                 let bot = await Bots.findOne({twitchChannelId: event.channelId}).exec();
                 sharedSecret = bot.sharedSecretKey;
+                hmacKey = bot.sharedSecretKey;
 
                 console.log(`FOUND SHARED KEY ${sharedSecret} FOR BOT ${event.channelId}`);
             }
@@ -61,7 +63,7 @@ wss.on('connection', async (ws) => {
                     event.jwt = null;
                     event.from = decoded.user_id;
                     event.ts = Date.now();
-                    event.signature = hmacSHA1(sharedSecret, event.to + event.from + event.ts);
+                    event.signature = hmacSHA1(hmacKey, event.to + event.from + event.ts);
 
                     if ((event.to && event.to.startsWith("BOT-") && !clients[event.to]) || (clients[event.to] && clients[event.to].readyState !== WebSocket.OPEN)) {
                         console.error(`${event.to} IS NOT ACTIVE`);
@@ -86,7 +88,7 @@ wss.on('connection', async (ws) => {
                             from: "SERVER",
                             ts: Date.now()
                         };
-                        event.signature = hmacSHA1(key, newEvent.to + newEvent.from + newEvent.ts);
+                        event.signature = hmacSHA1(hmacKey, newEvent.to + newEvent.from + newEvent.ts);
                         to.send(JSON.stringify(newEvent));
                     } else {
                         if (event.to === "ALL") {
