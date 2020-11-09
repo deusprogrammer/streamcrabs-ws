@@ -107,8 +107,8 @@ wss.on('connection', async (ws) => {
                                 return;
                             }
 
-                            if (to.startsWith("BOT-")) {
-                                let toBot = await Bots.findOne({twitchChannelId: to.substring(4)}).exec();
+                            if (event.to.startsWith("BOT-")) {
+                                let toBot = await Bots.findOne({twitchChannelId: event.to.substring(4)}).exec();
                                 event.signature = hmacSHA1(toBot.sharedSecretKey, event.to + event.from + event.ts);
                             }
 
