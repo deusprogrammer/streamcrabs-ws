@@ -27,7 +27,6 @@ const wss = new WebSocket.Server({ port: 8082 });
 const clients = {};
 
 const hmacSHA1 = (hmacSecret, data) => {
-    console.log("USING KEY: " + hmacSecret + " for HMAC");
     return crypto.createHmac('sha1', hmacSecret).update(data).digest().toString('base64');
 }
 
@@ -91,7 +90,6 @@ wss.on('connection', async (ws) => {
                         };
 
                         newEvent.signature = hmacSHA1(hmacKey, newEvent.to + newEvent.from + newEvent.ts);
-                        //event.signature = hmacSHA1(hmacKey, newEvent.to + newEvent.from + newEvent.ts);
                         to.send(JSON.stringify(newEvent));
                     } else {
                         if (event.to === "ALL") {
