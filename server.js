@@ -16,10 +16,11 @@ const abilityRoutes = require('./api/routes/abilities');
 const statusRoutes = require('./api/routes/statuses');
 
 const Users = require('./api/models/users');
+const Bots = require('./api/models/bots');
 
 // Keys for jwt verification
 const key = process.env.TWITCH_SHARED_SECRET;
-const secret = Buffer.from(key, 'base64');
+const defaultSecret = Buffer.from(key, 'base64');
 
 // Setup websocket server for communicating with the panel
 const wss = new WebSocket.Server({ port: 8082 });
@@ -32,17 +33,27 @@ const hmacSHA1 = (key, data) => {
 // Set up a websocket routing system
 wss.on('connection', async (ws) => {
     console.log("CONNECTION");
-    ws.on('message', (message) => {
+    ws.on('message', async (message) => {
         let event = JSON.parse(message);
         console.log("MESSAGE: " + JSON.stringify(event, null, 5));
         if (event.jwt) {
+            let sharedSecret = defaultSecret;
+            if (event.botId) {
+                let bot = await Bots.findOne({twitchChannelId: event.channelId}).exec();
+                sharedSecret = bot.sharedSecretKey;
+            }
+
             jwt.verify(
                 event.jwt,
-                secret,
+                sharedSecret,
                 (err, decoded) => {
                     if (err) {
                         console.error('JWT Error', err);
                         return;
+                    }
+
+                    if (event.botId && decoded.user_id != `BOT-${event.channelId}`) {
+                        console.log('Bot id and jwt do not match');
                     }
 
                     event.jwt = null;
@@ -145,20 +156,30 @@ app.use(bodyparser.json());
 app.use(cors());
 
 app
-    .use('/:route?', (req, res, next) => {
+    .use('/:route?', async (req, res, next) => {
         if (req.headers['authorization']) {
             console.log("AUTH :   " + req.headers['authorization']);
             let [ type, auth ] = req.headers['authorization'].split(' ');
+            let channelId = req.headers['x-channel-id'];
             if (type == 'Bearer') {
+                let sharedSecret = defaultSecret;
+                if (channelId) {
+                    let bot = await Bots.findOne({twitchChannelId: channelId}).exec();
+                    sharedSecret = bot.sharedSecretKey;
+                }
                 jwt.verify(
                     auth,
-                    secret,
+                    sharedSecret,
                     (err, decoded) => {
                         if (err) {
                             console.log('JWT Error', err);
 
                             res.status('401').json({error: true, message: 'Invalid authorization'});
                             return;
+                        }
+
+                        if (channelId && decoded.user_id != `BOT-${channelId}`) {
+                            console.log('Bot id and jwt do not match');
                         }
 
                         req.extension = decoded;
