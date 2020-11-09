@@ -38,9 +38,11 @@ wss.on('connection', async (ws) => {
         console.log("MESSAGE: " + JSON.stringify(event, null, 5));
         if (event.jwt) {
             let sharedSecret = defaultSecret;
-            if (event.botId) {
+            if (event.channelId) {
                 let bot = await Bots.findOne({twitchChannelId: event.channelId}).exec();
                 sharedSecret = bot.sharedSecretKey;
+
+                console.log(`FOUND SHARED KEY ${sharedSecret} FOR BOT ${event.channelId}`);
             }
 
             jwt.verify(
@@ -52,7 +54,7 @@ wss.on('connection', async (ws) => {
                         return;
                     }
 
-                    if (event.botId && decoded.user_id != `BOT-${event.channelId}`) {
+                    if (event.channelId && decoded.user_id != `BOT-${event.channelId}`) {
                         console.log('Bot id and jwt do not match');
                     }
 
