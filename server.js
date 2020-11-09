@@ -87,16 +87,11 @@ wss.on('connection', async (ws) => {
                             type: "PONG_SERVER",
                             to: event.from,
                             from: "SERVER",
-                            ts: Date.now()
+                            ts: event.ts
                         };
 
-                        // If the bot pinged the server, sign with it's special shared key
-                        if (event.channelId) {
-                            let bot = await Bots.findOne({twitchChannelId: event.channelId}).exec();
-                            hmacKey = bot.sharedSecretKey;
-                        }
-
-                        event.signature = hmacSHA1(hmacKey, newEvent.to + newEvent.from + newEvent.ts);
+                        newEvent.signature = hmacSHA1(hmacKey, newEvent.to + newEvent.from + newEvent.ts);
+                        //event.signature = hmacSHA1(hmacKey, newEvent.to + newEvent.from + newEvent.ts);
                         to.send(JSON.stringify(newEvent));
                     } else {
                         if (event.to === "ALL") {
