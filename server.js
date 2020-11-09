@@ -61,7 +61,7 @@ wss.on('connection', async (ws) => {
                     event.jwt = null;
                     event.from = decoded.user_id;
                     event.ts = Date.now();
-                    event.signature = hmacSHA1(key, event.to + event.from + event.ts);
+                    event.signature = hmacSHA1(sharedSecret, event.to + event.from + event.ts);
 
                     if ((event.to && event.to.startsWith("BOT-") && !clients[event.to]) || (clients[event.to] && clients[event.to].readyState !== WebSocket.OPEN)) {
                         console.error(`${event.to} IS NOT ACTIVE`);
