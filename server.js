@@ -51,7 +51,7 @@ wss.on('connection', async (ws) => {
             jwt.verify(
                 event.jwt,
                 sharedSecret,
-                (err, decoded) => {
+                async (err, decoded) => {
                     if (err) {
                         console.error('JWT Error', err);
                         return;
