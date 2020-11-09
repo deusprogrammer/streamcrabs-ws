@@ -26,8 +26,9 @@ const defaultSecret = Buffer.from(key, 'base64');
 const wss = new WebSocket.Server({ port: 8082 });
 const clients = {};
 
-const hmacSHA1 = (key, data) => {
-    return crypto.createHmac('sha1', key).update(data).digest().toString('base64');
+const hmacSHA1 = (hmacSecret, data) => {
+    console.log("USING KEY: " + hmacSecret + " for HMAC");
+    return crypto.createHmac('sha1', hmacSecret).update(data).digest().toString('base64');
 }
 
 // Set up a websocket routing system
