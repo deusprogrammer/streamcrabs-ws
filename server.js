@@ -89,6 +89,13 @@ wss.on('connection', async (ws) => {
                             from: "SERVER",
                             ts: Date.now()
                         };
+
+                        // If the bot pinged the server, sign with it's special shared key
+                        if (event.channelId) {
+                            let bot = await Bots.findOne({twitchChannelId: event.channelId}).exec();
+                            hmacKey = bot.sharedSecretKey;
+                        }
+
                         event.signature = hmacSHA1(hmacKey, newEvent.to + newEvent.from + newEvent.ts);
                         to.send(JSON.stringify(newEvent));
                     } else {
