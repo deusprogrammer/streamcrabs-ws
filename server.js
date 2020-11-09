@@ -106,6 +106,12 @@ wss.on('connection', async (ws) => {
                                 console.error("Cannot find client");
                                 return;
                             }
+
+                            if (to.startsWith("BOT-")) {
+                                let toBot = await Bots.findOne({twitchChannelId: to.substring(4)}).exec();
+                                event.signature = hmacSHA1(toBot.sharedSecretKey, event.to + event.from + event.ts);
+                            }
+
                             to.send(JSON.stringify(event));
                         }
                     }
