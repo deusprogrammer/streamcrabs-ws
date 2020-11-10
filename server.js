@@ -92,13 +92,7 @@ wss.on('connection', async (ws) => {
 
                     event.jwt = null;
                     event.from = decoded.user_id;
-                    try {
-                        console.log("PENIS");
-                        event.fromUser = await getTwitchUsername(event.from);
-                        console.log("PUMP");
-                    } catch (error) {
-                        console.log("SON OF A FUCKING BITCH: " + error);
-                    }
+                    event.fromUser = await getTwitchUsername(event.from);
                     event.ts = Date.now();
                     event.signature = hmacSHA1(hmacKey, event.to + event.from + event.ts);
 
