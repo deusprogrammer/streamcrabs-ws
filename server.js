@@ -61,7 +61,6 @@ wss.on('connection', async (ws) => {
     console.log("CONNECTION");
     ws.on('message', async (message) => {
         let event = JSON.parse(message);
-        console.log("MESSAGE: " + JSON.stringify(event, null, 5));
         if (event.jwt) {
             let sharedSecret = defaultSecret;
             let hmacKey = key;
@@ -78,13 +77,15 @@ wss.on('connection', async (ws) => {
                 sharedSecret,
                 async (err, decoded) => {
                     if (err) {
-                        console.error('JWT Error', err);
+                        // console.error('JWT Error', err);
                         return;
                     }
 
                     if (event.channelId && decoded.user_id != `BOT-${event.channelId}`) {
-                        console.log('Bot id and jwt do not match');
+                        // console.log('Bot id and jwt do not match');
                     }
+
+                    console.log("MESSAGE: " + JSON.stringify(event, null, 5));
 
                     event.jwt = null;
                     event.from = decoded.user_id;
@@ -99,7 +100,7 @@ wss.on('connection', async (ws) => {
                     console.log("EVENT: " + JSON.stringify(event, null, 5));
 
                     if ((event.to && event.to.startsWith("BOT-") && !clients[event.to]) || (clients[event.to] && clients[event.to].readyState !== WebSocket.OPEN)) {
-                        console.error(`${event.to} IS NOT ACTIVE`);
+                        // console.error(`${event.to} IS NOT ACTIVE`);
                         clients[event.from].send(JSON.stringify({
                             type: "SEND_FAILURE"
                         }));
