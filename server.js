@@ -91,6 +91,8 @@ wss.on('connection', async (ws) => {
                     event.ts = Date.now();
                     event.signature = hmacSHA1(hmacKey, event.to + event.from + event.ts);
 
+                    console.log("EVENT: " + JSON.stringify(event, null, 5));
+
                     if ((event.to && event.to.startsWith("BOT-") && !clients[event.to]) || (clients[event.to] && clients[event.to].readyState !== WebSocket.OPEN)) {
                         console.error(`${event.to} IS NOT ACTIVE`);
                         clients[event.from].send(JSON.stringify({
@@ -135,7 +137,6 @@ wss.on('connection', async (ws) => {
                                 let toBot = await Bots.findOne({twitchChannelId: event.to.substring(4)}).exec();
                                 event.signature = hmacSHA1(toBot.sharedSecretKey, event.to + event.from + event.ts);
                             }
-
                             to.send(JSON.stringify(event));
                         }
                     }
