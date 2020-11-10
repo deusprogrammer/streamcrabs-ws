@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyparser from 'body-parser';
 import cors from 'cors';
+import axios from 'axios';
 import Agenda from 'agenda';
 
 const jwt = require('jsonwebtoken');
@@ -102,10 +103,8 @@ wss.on('connection', async (ws) => {
                     }
 
                     if (event.type === "REGISTER") {
-                        console.log(`USER ${decoded.user_id} REGISTERED`);
                         clients[decoded.user_id] = ws;
                     } else if (event.type === "PING_SERVER") {
-                        console.log(`USER ${decoded.user_id} PING_SERVER`);
                         let to = clients[decoded.user_id];
                         if (!to) {
                             return;
