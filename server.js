@@ -83,14 +83,19 @@ wss.on('connection', async (ws) => {
 
                     if (event.channelId && decoded.user_id != `BOT-${event.channelId}`) {
                         // console.log('Bot id and jwt do not match');
+                        return;
                     }
 
-                    console.log("MESSAGE: " + JSON.stringify(event, null, 5));
+                    if (event.type !== "PING" && event.type !== "PING_SERVER") {
+                        console.log("MESSAGE: " + JSON.stringify(event, null, 5));
+                    }
 
                     event.jwt = null;
                     event.from = decoded.user_id;
                     try {
+                        console.log("PENIS");
                         event.fromUser = await getTwitchUsername(event.from);
+                        console.log("PUMP");
                     } catch (error) {
                         console.log("SON OF A FUCKING BITCH: " + error);
                     }
