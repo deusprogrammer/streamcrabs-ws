@@ -30,6 +30,31 @@ const hmacSHA1 = (hmacSecret, data) => {
     return crypto.createHmac('sha1', hmacSecret).update(data).digest().toString('base64');
 }
 
+const getTwitchProfile = async (userId) => {
+    let url = `https://api.twitch.tv/kraken/users/${userId}`;
+    console.log(`URL : ${url}`);
+    let res = await axios.get(url, {
+        headers: {
+            "Client-ID": `z91swgqes7e0y7r8oa1t32u6uokyiw`,
+            Accept: "application/vnd.twitchtv.v5+json"
+        }
+    });
+
+    return res.data;
+}
+
+const twitchCache = {};
+const getTwitchUsername = async (userId) => {
+    if (twitchCache[userId]) {
+        return twitchCache[userId];
+    }
+
+    let profile = await getTwitchProfile(userId);
+    twitchCache[userId] = profile.name;
+
+    return profile.name;
+}
+
 // Set up a websocket routing system
 wss.on('connection', async (ws) => {
     console.log("CONNECTION");
@@ -62,6 +87,7 @@ wss.on('connection', async (ws) => {
 
                     event.jwt = null;
                     event.from = decoded.user_id;
+                    event.fromUser = await getTwitchUsername(event.from);
                     event.ts = Date.now();
                     event.signature = hmacSHA1(hmacKey, event.to + event.from + event.ts);
 
