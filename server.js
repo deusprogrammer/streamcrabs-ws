@@ -86,13 +86,12 @@ wss.on('connection', async (ws) => {
                         return;
                     }
 
-                    if (event.type !== "PING" && event.type !== "PING_SERVER") {
-                        console.log("MESSAGE: " + JSON.stringify(event, null, 5));
-                    }
 
                     event.jwt = null;
                     event.from = decoded.user_id;
-                    event.fromUser = await getTwitchUsername(event.from);
+                    if (!event.from.startsWith("BOT-")) {
+                        event.fromUser = await getTwitchUsername(event.from);
+                    }
                     event.ts = Date.now();
                     event.signature = hmacSHA1(hmacKey, event.to + event.from + event.ts);
 
