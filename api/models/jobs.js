@@ -10,7 +10,12 @@ var jobSchema = new mongoose.Schema({
     str: Number,
     dex: Number,
     int: Number,
-    hit: Number
+    hit: Number,
+    owningChannel: {
+        type: Number,
+        required: "An owning channel is required",
+        index: true
+    }
 })
 
 module.exports = mongoose.model("jobs", jobSchema)

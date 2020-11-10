@@ -76,6 +76,11 @@ var itemSchema = new mongoose.Schema({
     rarity: {
         type: Number,
         default: 1
+    },
+    owningChannel: {
+        type: Number,
+        required: "An owning channel is required",
+        index: true
     }
 })
 

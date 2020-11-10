@@ -71,7 +71,12 @@ var abilitySchema = new mongoose.Schema({
         default: []
     },
     buffs: String,
-    buffsDuration: Number
+    buffsDuration: Number,
+    owningChannel: {
+        type: Number,
+        required: "An owning channel is required",
+        index: true
+    }
 })
 
 module.exports = mongoose.model("abilities", abilitySchema)

@@ -10,7 +10,12 @@ var encounterSchema = new mongoose.Schema({
         type: Array,
         of: String
     },
-    spawnTime: Date
+    spawnTime: Date,
+    owningChannel: {
+        type: Number,
+        required: "An owning channel is required",
+        index: true
+    }
 })
 
 module.exports = mongoose.model("encounters", encounterSchema)

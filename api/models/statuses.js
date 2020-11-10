@@ -23,7 +23,12 @@ var statusSchema = new mongoose.Schema({
     },
     element: String,
     otherEffects: String,
-    otherEffectsDuration: Number
+    otherEffectsDuration: Number,
+    owningChannel: {
+        type: Number,
+        required: "An owning channel is required",
+        index: true
+    }
 })
 
 module.exports = mongoose.model("statuses", statusSchema)

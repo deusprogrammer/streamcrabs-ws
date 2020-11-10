@@ -39,7 +39,12 @@ var userSchema = new mongoose.Schema({
         type: Array,
         of: String
     },
-    gold: Number
+    gold: Number,
+    owningChannel: {
+        type: Number,
+        required: "An owning channel is required",
+        index: true
+    }
 });
 
 module.exports = mongoose.model("users", userSchema);
