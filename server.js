@@ -87,6 +87,7 @@ wss.on('connection', async (ws) => {
                     panels[event.channelId] = [];
                 }
                 panels[event.channelId].push(ws);
+                console.log("REGISTERED PANEL FOR CHANNEL ID " + event.channelId);
                 return;
             } else if (event.from === "PANEL" && event.type === "PING_SERVER") {
                 let channelPanels = panels[event.channelId];
