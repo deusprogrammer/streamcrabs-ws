@@ -41,9 +41,7 @@ var userSchema = new mongoose.Schema({
     },
     gold: Number,
     owningChannel: {
-        type: Number,
-        required: "An owning channel is required",
-        index: true
+        type: Number
     }
 });
 
