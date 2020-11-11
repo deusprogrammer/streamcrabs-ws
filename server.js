@@ -77,36 +77,37 @@ wss.on('connection', async (ws) => {
     console.log("CONNECTION");
     ws.on('message', async (message) => {
         let event = JSON.parse(message);
+
+         // Panel requests don't need jwt authentication
+         if (event.from === "PANEL" && event.type === "REGISTER_PANEL") {
+            if (!panels[event.channelId]) {
+                panels[event.channelId] = [];
+            }
+            panels[event.channelId].push(ws);
+            console.log("REGISTERED PANEL FOR CHANNEL ID " + event.channelId);
+            return;
+        } else if (event.from === "PANEL" && event.type === "PING_SERVER") {
+            let channelPanels = panels[event.channelId];
+            if (!channelPanels) {
+                return;
+            }
+
+            channelPanels.forEach((channelPanel) => {
+                let newEvent = {
+                    type: "PONG_SERVER",
+                    to: event.from,
+                    from: "SERVER",
+                    ts: Date.now()
+                };
+
+                channelPanel.send(JSON.stringify(newEvent));
+            });
+            return;
+        }
+
         if (event.jwt) {
             let sharedSecret = defaultSecret;
             let hmacKey = key;
-
-            // Panel requests don't need jwt authentication
-            if (event.from === "PANEL" && event.type === "REGISTER_PANEL") {
-                if (!panels[event.channelId]) {
-                    panels[event.channelId] = [];
-                }
-                panels[event.channelId].push(ws);
-                console.log("REGISTERED PANEL FOR CHANNEL ID " + event.channelId);
-                return;
-            } else if (event.from === "PANEL" && event.type === "PING_SERVER") {
-                let channelPanels = panels[event.channelId];
-                if (!channelPanels) {
-                    return;
-                }
-
-                channelPanels.forEach((channelPanel) => {
-                    let newEvent = {
-                        type: "PONG_SERVER",
-                        to: event.from,
-                        from: "SERVER",
-                        ts: Date.now()
-                    };
-
-                    channelPanel.send(JSON.stringify(newEvent));
-                });
-                return;
-            }
 
             // If from or to the bot, pull the shared key for the channel
             if (event.channelId) {
@@ -144,6 +145,9 @@ wss.on('connection', async (ws) => {
 
                     if ((event.to && event.to.startsWith("BOT-") && !clients[event.to]) || (clients[event.to] && clients[event.to].readyState !== WebSocket.OPEN)) {
                         // console.error(`${event.to} IS NOT ACTIVE`);
+                        if (!clients[event.from]) {
+                            return;
+                        }
                         clients[event.from].send(JSON.stringify({
                             type: "SEND_FAILURE"
                         }));
