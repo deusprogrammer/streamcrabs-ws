@@ -25,7 +25,9 @@ const defaultSecret = Buffer.from(key, 'base64');
 
 // Setup websocket server for communicating with the panel
 const wss = new WebSocket.Server({ port: 8082 });
+
 const clients = {};
+const panels = {};
 
 const hmacSHA1 = (hmacSecret, data) => {
     return crypto.createHmac('sha1', hmacSecret).update(data).digest().toString('base64');
@@ -56,6 +58,20 @@ const getTwitchUsername = async (userId) => {
     return profile.name;
 }
 
+setInterval(() => {
+    // Remove dead connections
+    Object.keys(clients).filter((key) => {return clients[key].readyState !== WebSocket.OPEN}).forEach((key) => {
+        console.log("Removing dead connection for client: " + key);
+        delete clients[key];
+    });
+
+    // Remove dead panels
+    Object.keys(panels).forEach((channelId) => {
+        let channelPanels = panels[channelId];
+        panels[channelId] = channelPanels.filter((channelPanel) => {return channelPanel.readyState !== WebSocket.OPEN});
+    });
+}, 5 * 60 * 1000);
+
 // Set up a websocket routing system
 wss.on('connection', async (ws) => {
     console.log("CONNECTION");
@@ -64,6 +80,34 @@ wss.on('connection', async (ws) => {
         if (event.jwt) {
             let sharedSecret = defaultSecret;
             let hmacKey = key;
+
+            // Panel requests don't need jwt authentication
+            if (event.from === "PANEL" && event.type === "REGISTER_PANEL") {
+                if (!panels[event.channelId]) {
+                    panels[event.channelId] = [];
+                }
+                panels[event.channelId].push(ws);
+                return;
+            } else if (event.from === "PANEL" && event.type === "PING_SERVER") {
+                let channelPanels = panels[event.channelId];
+                if (!channelPanels) {
+                    return;
+                }
+
+                channelPanels.forEach((channelPanel) => {
+                    let newEvent = {
+                        type: "PONG_SERVER",
+                        to: event.from,
+                        from: "SERVER",
+                        ts: Date.now()
+                    };
+
+                    channelPanel.send(JSON.stringify(newEvent));
+                });
+                return;
+            }
+
+            // If from or to the bot, pull the shared key for the channel
             if (event.channelId) {
                 let bot = await Bots.findOne({twitchChannelId: event.channelId}).exec();
                 sharedSecret = bot.sharedSecretKey;
@@ -122,7 +166,16 @@ wss.on('connection', async (ws) => {
                         newEvent.signature = hmacSHA1(hmacKey, newEvent.to + newEvent.from + newEvent.ts);
                         to.send(JSON.stringify(newEvent));
                     } else {
-                        if (event.to === "ALL") {
+                        if (event.to === "PANELS") {
+                            let channelPanels = panels[event.channelId];
+                            if (!channelPanels) {
+                                return;
+                            }
+
+                            channelPanels.forEach((channelPanel) => {
+                                channelPanel.send(JSON.stringify(event));
+                            })
+                        } else if (event.to === "ALL") {
                             Object.keys(clients).forEach((key) => {
                                 if (key !== event.from) {
                                     clients[key].send(JSON.stringify(event));
