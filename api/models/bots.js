@@ -15,6 +15,16 @@ var botSchema = new mongoose.Schema({
         type: String,
         required: 'Shared secret key is required'
     },
+    accessToken: {
+        type: String
+    },
+    refreshToken: {
+        type: String
+    },
+    priority: {
+        type: Number,
+        default: 0
+    }
 })
 
 module.exports = mongoose.model("bots", botSchema)

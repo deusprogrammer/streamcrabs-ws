@@ -15,6 +15,7 @@ const jobRoutes = require('./api/routes/jobs');
 const monsterRoutes = require('./api/routes/monsters');
 const abilityRoutes = require('./api/routes/abilities');
 const statusRoutes = require('./api/routes/statuses');
+const botRoutes = require('./api/routes/bots');
 
 const Users = require('./api/models/users');
 const Bots = require('./api/models/bots');
@@ -255,8 +256,13 @@ app.use(cors());
 
 app
     .use('/:route?', async (req, res, next) => {
+        if (req.path === "/bots") {
+            console.log("CALL TO BOTS");
+            next();
+            return;
+        }
+
         if (req.headers['authorization']) {
-            console.log("AUTH :   " + req.headers['authorization']);
             let [ type, auth ] = req.headers['authorization'].split(' ');
             let channelId = req.headers['x-channel-id'];
             if (type == 'Bearer') {
@@ -306,6 +312,7 @@ app.use('/jobs', jobRoutes);
 app.use('/monsters', monsterRoutes);
 app.use('/abilities', abilityRoutes);
 app.use('/statuses', statusRoutes);
+app.use('/bots', botRoutes);
 
 app.listen(port);
 console.log('chat-battle-dungeon RESTful API server started on: ' + port);
