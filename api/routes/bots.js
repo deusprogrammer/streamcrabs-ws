@@ -14,17 +14,25 @@ const randomUuid = () => {
 }
 
 const getAccessToken = async (code) => {
-    let res = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${clientId}&client_secret=${clientSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${redirectUrl}`);
+    try {
+        let res = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${clientId}&client_secret=${clientSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${redirectUrl}`);
 
-    return res.data;
+        return res.data;
+    } catch (error) {
+        console.error("Call to get access token failed! " + error.message);
+    }
 }
 
 const getProfile = async (accessToken) => {
-    let res = await axios.get(`https://api.twitch.tv/helix/users`, {
-        headers: {
-            "Authorization": `Bearer ${accessToken}`
-        }
-    });
+    try {
+        let res = await axios.get(`https://api.twitch.tv/helix/users`, {
+            headers: {
+                "Authorization": `Bearer ${accessToken}`
+            }
+        });
+    } catch (error) {
+        console.error("Call to get profile failed! " + error.message);
+    }
 
     return res.data;
 }
