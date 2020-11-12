@@ -83,8 +83,8 @@ router.route("/")
 
             // Create body
             request.body.sharedSecretKey = randomUuid();
-            request.body.twitchChannelId = twitchUser;
-            request.body.twitchOwnerUserId = twitchUser;
+            request.body.twitchChannelId = userRes.id;
+            request.body.twitchOwnerUserId = userRes.id;
             request.body.accessToken = accessTokenRes.access_token;
             request.body.refreshToken = accessTokenRes.refresh_token;
             
