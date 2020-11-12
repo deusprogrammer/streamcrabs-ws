@@ -27,7 +27,8 @@ const getProfile = async (accessToken) => {
     try {
         let res = await axios.get(`https://api.twitch.tv/helix/users`, {
             headers: {
-                "Authorization": `Bearer ${accessToken}`
+                "Authorization": `Bearer ${accessToken}`,
+                "Client-Id": clientId
             }
         });
     } catch (error) {

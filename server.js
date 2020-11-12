@@ -22,6 +22,7 @@ const Bots = require('./api/models/bots');
 
 // Keys for jwt verification
 const key = process.env.TWITCH_SHARED_SECRET;
+const clientId = process.env.TWITCH_CLIENT_ID;
 const defaultSecret = Buffer.from(key, 'base64');
 
 // Setup websocket server for communicating with the panel
@@ -39,7 +40,7 @@ const getTwitchProfile = async (userId) => {
     console.log(`URL : ${url}`);
     let res = await axios.get(url, {
         headers: {
-            "Client-ID": `z91swgqes7e0y7r8oa1t32u6uokyiw`,
+            "Client-ID": clientId,
             Accept: "application/vnd.twitchtv.v5+json"
         }
     });
