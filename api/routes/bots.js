@@ -78,7 +78,7 @@ router.route("/")
             // Get user profile.
             let userRes = await getProfile(accessTokenRes.access_token);
 
-            let profile = userRes[0];
+            let profile = userRes.data[0];
 
             console.log("GODDAMNIT: " + JSON.stringify(profile, null, 5));
 
