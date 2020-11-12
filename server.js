@@ -257,6 +257,8 @@ app.use(cors());
 app
     .use('/:route?', async (req, res, next) => {
         console.log("PATH: " + req.path);
+        console.log("ORIG: " + req.originalUrl);
+        console.log ("REQ: " + JSON.stringify(req, null, 5));
         if (req.path === "/bots") {
             console.log("CALL TO BOTS");
             next();
