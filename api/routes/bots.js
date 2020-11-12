@@ -20,6 +20,7 @@ const getAccessToken = async (code) => {
         return res.data;
     } catch (error) {
         console.error("Call to get access token failed! " + error.message);
+        throw error;
     }
 }
 
@@ -31,11 +32,12 @@ const getProfile = async (accessToken) => {
                 "Client-Id": clientId
             }
         });
+
+        return res.data;
     } catch (error) {
         console.error("Call to get profile failed! " + error.message);
+        throw error;
     }
-
-    return res.data;
 }
 
 const createTrinaryUser = async (username, userId) => {
@@ -69,22 +71,24 @@ const createTrinaryUser = async (username, userId) => {
 
 router.route("/")
     .post(async (request, response) => {
-        // Get access token.
-        let accessTokenRes = await getAccessToken(request.body.twitchAuthCode);
-
-        // Get user profile.
-        let userRes = await getProfile(accessTokenRes.access_token);
-
-        // Create user.
-        await createTrinaryUser(userRes.login, userRes.id);
-
         try {
+            // Get access token.
+            let accessTokenRes = await getAccessToken(request.body.twitchAuthCode);
+
+            // Get user profile.
+            let userRes = await getProfile(accessTokenRes.access_token);
+
+            // Create user.
+            await createTrinaryUser(userRes.login, userRes.id);
+
+            // Create body
             request.body.sharedSecretKey = randomUuid();
             request.body.twitchChannelId = twitchUser;
             request.body.twitchOwnerUserId = twitchUser;
             request.body.accessToken = accessTokenRes.access_token;
             request.body.refreshToken = accessTokenRes.refresh_token;
             
+            // Save body
             let bot = await Bots.create(request.body);
             return response.json(bot);
         } catch (error) {
