@@ -1,6 +1,11 @@
 var mongoose = require('mongoose')
 
 var botSchema = new mongoose.Schema({
+    twitchChannel: {
+        type: String,
+        required: 'Channel name is required',
+        unique: true
+    },
     twitchChannelId: {
         type: Number,
         required: 'Channel id is required',

@@ -78,15 +78,13 @@ router.route("/")
             // Get user profile.
             let userRes = await getProfile(accessTokenRes.access_token);
 
-            let profile = userRes.data[0];
-
-            console.log("GODDAMNIT: " + JSON.stringify(profile, null, 5));
-
             // Create user.
+            let profile = userRes.data[0];
             await createTrinaryUser(profile.login, profile.id);
 
             // Create body
             request.body.sharedSecretKey = randomUuid();
+            request.body.twitchChannel = profile.login;
             request.body.twitchChannelId = parseInt(profile.id);
             request.body.twitchOwnerUserId = parseInt(profile.id);
             request.body.accessToken = accessTokenRes.access_token;
