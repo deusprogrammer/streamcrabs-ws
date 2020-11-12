@@ -81,6 +81,8 @@ router.route("/")
             // Create user.
             await createTrinaryUser(userRes.login, userRes.id);
 
+            console.log("PROFILE: " + JSON.stringify(userRes, null, 5));
+
             // Create body
             request.body.sharedSecretKey = randomUuid();
             request.body.twitchChannelId = userRes.id;
