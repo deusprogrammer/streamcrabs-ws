@@ -78,6 +78,8 @@ router.route("/")
             // Get user profile.
             let userRes = await getProfile(accessTokenRes.access_token);
 
+            console.log("GODDAMNIT: " + JSON.stringify(userRes.data, null, 5));
+
             // Create user.
             await createTrinaryUser(userRes.data.login, userRes.data.id);
 
