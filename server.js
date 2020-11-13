@@ -125,12 +125,12 @@ wss.on('connection', async (ws) => {
                 sharedSecret,
                 async (err, decoded) => {
                     if (err) {
-                        // console.error('JWT Error', err);
+                        console.error('JWT Error', err);
                         return;
                     }
 
                     if (event.channelId && decoded.user_id != `BOT-${event.channelId}`) {
-                        // console.log('Bot id and jwt do not match');
+                        console.log('Bot id and jwt do not match');
                         return;
                     }
 
