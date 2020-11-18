@@ -3,6 +3,7 @@ const express = require('express');
 var router = express.Router();
 
 var Bots = require('../models/bots');
+var Configs = require('../models/configs');
 
 const clientId = process.env.TWITCH_CLIENT_ID;
 const clientSecret = process.env.TWITCH_CLIENT_SECRET;
@@ -101,6 +102,14 @@ router.route("/")
 
             // Get user profile.
             let userRes = await getProfile(accessTokenRes.access_token);
+
+            // Get approved bots.
+            let allowedBots = await Configs.findOne({name: "allowedBots"}).exec();
+
+            if (!allowedBots.values.includes(profile.id.toString())) {
+                response.status(403);
+                return response.send("You are not allowed to create a bot");
+            }
 
             // Create user.
             let profile = userRes.data[0];
