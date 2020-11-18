@@ -104,6 +104,7 @@ router.route("/")
             let userRes = await getProfile(accessTokenRes.access_token);
 
             // Get approved bots.
+            let profile = userRes.data[0];
             let allowedBots = await Configs.findOne({name: "allowedBots"}).exec();
 
             if (!allowedBots.values.includes(profile.id.toString())) {
@@ -112,7 +113,6 @@ router.route("/")
             }
 
             // Create user.
-            let profile = userRes.data[0];
             await createTrinaryUser(profile.login, profile.id);
 
             // Create bot container
