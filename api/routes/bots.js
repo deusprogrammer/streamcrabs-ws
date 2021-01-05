@@ -116,7 +116,7 @@ router.route("/")
             await createTrinaryUser(profile.login, profile.id);
 
             // Create bot container
-            await createBotContainer(profile.id);
+            // await createBotContainer(profile.id);
 
             // Create body
             request.body.sharedSecretKey = randomUuid();
