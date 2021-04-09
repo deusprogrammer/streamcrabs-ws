@@ -102,7 +102,7 @@ wss.on('connection', async (ws) => {
                 ts: Date.now()
             }
             initEvent.signature = hmacSHA1(toBot.sharedSecretKey, initEvent.to + initEvent.from + initEvent.ts);
-            to.send(JSON.stringify(event));
+            to.send(JSON.stringify(initEvent));
 
             return;
         } else if (event.from === "PANEL" && event.type === "PING_SERVER") {
