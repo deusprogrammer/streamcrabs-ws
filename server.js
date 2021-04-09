@@ -87,6 +87,23 @@ wss.on('connection', async (ws) => {
             }
             panels[event.channelId].push(ws);
             console.log("REGISTERED PANEL FOR CHANNEL ID " + event.channelId);
+
+            let to = clients[`BOT-${event.channelId}`];
+            if (!to) {
+                console.error("Cannot find client");
+                return;
+            }
+
+            let toBot = await Bots.findOne({twitchChannelId: event.channelId}).exec();
+            let initEvent = {
+                to: `BOT-${event.channelId}`,
+                from: 'PANEL',
+                type: 'PANEL_INIT',
+                ts: Date.now()
+            }
+            initEvent.signature = hmacSHA1(toBot.sharedSecretKey, initEvent.to + initEvent.from + initEvent.ts);
+            to.send(JSON.stringify(event));
+
             return;
         } else if (event.from === "PANEL" && event.type === "PING_SERVER") {
             let channelPanels = panels[event.channelId];
