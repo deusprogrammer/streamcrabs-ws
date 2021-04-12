@@ -125,6 +125,10 @@ router.route("/")
             request.body.twitchOwnerUserId = parseInt(profile.id);
             request.body.accessToken = accessTokenRes.access_token;
             request.body.refreshToken = accessTokenRes.refresh_token;
+            request.body.config = {
+                cbd: true,
+                requests: true
+            }
             
             // Save body
             let bot = await Bots.create(request.body);
