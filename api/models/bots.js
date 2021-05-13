@@ -36,6 +36,22 @@ var botSchema = new mongoose.Schema({
             "cbd": true,
             "requests": true
         }
+    },
+    videoPool: {
+        type: Array,
+        of: {
+            url: String,
+            name: String
+        },
+        default: []
+    },
+    audioPool: {
+        type: Array,
+        of: {
+            url: String,
+            name: String
+        },
+        default: []
     }
 })
 
