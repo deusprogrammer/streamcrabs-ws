@@ -80,7 +80,7 @@ const createTrinaryUser = async (username, userId) => {
                     ]
                 }
             },
-            roles: ["TWITCH_BROADCASTER"]
+            roles: ["TWITCH_BROADCASTER", "MEDIA_UPLOADER"]
         }, {
             headers: {
                 contentType: "application/json",
