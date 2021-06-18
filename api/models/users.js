@@ -40,6 +40,10 @@ var userSchema = new mongoose.Schema({
         of: String
     },
     gold: Number,
+    currencies: {
+        type: Map,
+        of: Number
+    },
     owningChannel: {
         type: Number
     }
