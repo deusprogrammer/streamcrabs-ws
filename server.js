@@ -99,6 +99,7 @@ wss.on('connection', async (ws) => {
                 to: `BOT-${event.channelId}`,
                 from: 'PANEL',
                 type: 'PANEL_INIT',
+                name: event.name,
                 ts: Date.now()
             }
             initEvent.signature = hmacSHA1(toBot.sharedSecretKey, initEvent.to + initEvent.from + initEvent.ts);
@@ -106,8 +107,8 @@ wss.on('connection', async (ws) => {
 
             return;
         } else if (event.from === "PANEL" && event.type === "PING_SERVER") {
-            let channelPanels = panels[`BOT-${event.channelId}`];
-            let botWs = clients[event.channelId];
+            let channelPanels = panels[event.channelId];
+            let botWs = clients[`BOT-${event.channelId}`];
             if (!channelPanels) {
                 return;
             }
