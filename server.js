@@ -106,7 +106,7 @@ wss.on('connection', async (ws) => {
 
             return;
         } else if (event.from === "PANEL" && event.type === "PING_SERVER") {
-            let channelPanels = panels[event.channelId];
+            let channelPanels = panels[`BOT-${event.channelId}`];
             let botWs = clients[event.channelId];
             if (!channelPanels) {
                 return;
@@ -121,14 +121,15 @@ wss.on('connection', async (ws) => {
                 };
 
                 channelPanel.send(JSON.stringify(newEvent));
-                botWs.send(JSON.stringify({
-                    type: "PANEL_PING",
-                    to: `BOT-${event.channelId}`,
-                    from: "PANEL",
-                    name: event.name,
-                    ts: Date.now()
-                }));
             });
+
+            botWs.send(JSON.stringify({
+                type: "PANEL_PING",
+                to: `BOT-${event.channelId}`,
+                from: "PANEL",
+                name: event.name,
+                ts: Date.now()
+            }));
             return;
         }
 
