@@ -41,7 +41,27 @@ var botSchema = new mongoose.Schema({
         type: Array,
         of: {
             url: String,
-            name: String
+            name: String,
+            volume: {
+                type: Number,
+                default: 1.0
+            },
+            x: {
+                type: String,
+                default: "0px"
+            },
+            y: {
+                type: String,
+                default: "0px"
+            },
+            width: {
+                type: String,
+                default: "100vw"
+            },
+            height: {
+                type: String,
+                default: "100vh"
+            }
         },
         default: []
     },
@@ -49,7 +69,27 @@ var botSchema = new mongoose.Schema({
         type: Array,
         of: {
             url: String,
-            name: String
+            name: String,
+            volume: {
+                type: Number,
+                default: 1.0
+            },
+            x: {
+                type: String,
+                default: "0px"
+            },
+            y: {
+                type: String,
+                default: "0px"
+            },
+            width: {
+                type: String,
+                default: "100vw"
+            },
+            height: {
+                type: String,
+                default: "100vh"
+            }
         },
         default: []
     }
