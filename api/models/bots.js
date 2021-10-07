@@ -34,7 +34,9 @@ var botSchema = new mongoose.Schema({
         type: Map,
         default: {
             "cbd": true,
-            "requests": true
+            "requests": false,
+            "raid": false,
+            "rewards": false
         }
     },
     videoPool: {
