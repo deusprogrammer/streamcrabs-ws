@@ -1,23 +1,10 @@
-import express from 'express';
 import mongoose from 'mongoose';
-import bodyparser from 'body-parser';
-import cors from 'cors';
 import axios from 'axios';
-import Agenda from 'agenda';
 
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const WebSocket = require('ws');
 
-const usersRoutes = require('./api/routes/users');
-const itemRoutes = require('./api/routes/items');
-const jobRoutes = require('./api/routes/jobs');
-const monsterRoutes = require('./api/routes/monsters');
-const abilityRoutes = require('./api/routes/abilities');
-const statusRoutes = require('./api/routes/statuses');
-const botRoutes = require('./api/routes/bots');
-
-const Users = require('./api/models/users');
 const Bots = require('./api/models/bots');
 
 // Keys for jwt verification
@@ -35,6 +22,7 @@ const hmacSHA1 = (hmacSecret, data) => {
     return crypto.createHmac('sha1', hmacSecret).update(data).digest().toString('base64');
 }
 
+// TODO Update this to helix soon
 const getTwitchProfile = async (userId) => {
     let url = `https://api.twitch.tv/kraken/users/${userId}`;
     console.log(`URL : ${url}`);
@@ -235,39 +223,13 @@ wss.on('connection', async (ws) => {
     });
 });
 
-let app = express();
-let port = process.env.PORT || 8081;
+/*
+ * Connect to database
+*/
 
 // Mongoose instance connection url connection
 const databaseUrl = process.env.CBD_DB_URL;
 mongoose.Promise = global.Promise;
-
-// Set up nightly update
-const agenda = new Agenda({db: {address: databaseUrl, collection: "batch-jobs"}});
-agenda.define("Replenish Users", async (job, done) => {
-    console.log("Replenishing users");
-    let users = await Users.find({}).exec();
-    for (const user of users) {
-        user.ap += 10;
-        if (user.hp <= 0) {
-            user.hp = 1;
-        }
-        await Users.updateOne({name: user.name}, user).exec();
-    }
-    done();
-});
-
-agenda.every("24 hours");
-
-(async () => {
-    const job = agenda.create("Replenish Users");
-    await agenda.start();
-    await job.repeatAt("4:00am").save();
-})();
-
-/*
- * Connect to database
-*/
 
 var connectWithRetry = function() {
     return mongoose.connect(databaseUrl, function(err) {
@@ -278,69 +240,3 @@ var connectWithRetry = function() {
     });
 };
 connectWithRetry();
-
-app.use(bodyparser.json());
-app.use(cors());
-
-app
-    .use('/:route?', async (req, res, next) => {
-        if (req.originalUrl === "/bots") {
-            console.log("CALL TO BOTS");
-            next();
-            return;
-        }
-
-        if (req.headers['authorization']) {
-            let [ type, auth ] = req.headers['authorization'].split(' ');
-            let channelId = req.headers['x-channel-id'];
-            if (type == 'Bearer') {
-                let sharedSecret = defaultSecret;
-                if (channelId) {
-                    let bot = await Bots.findOne({twitchChannelId: channelId}).exec();
-                    sharedSecret = bot.sharedSecretKey;
-                }
-                jwt.verify(
-                    auth,
-                    sharedSecret,
-                    (err, decoded) => {
-                        if (err) {
-                            console.log('JWT Error', err);
-
-                            res.status('401').json({error: true, message: 'Invalid authorization'});
-                            return;
-                        }
-
-                        if (channelId && decoded.user_id != `BOT-${channelId}`) {
-                            console.log('Bot id and jwt do not match');
-                        }
-
-                        req.extension = decoded;
-
-                        console.log('Extension Data:', req.extension);
-
-                        next();
-                    }
-                );
-
-                return;
-            }
-
-            res.status('401').json({error: true, message: 'Invalid authorization header'});
-        } else {
-            res.status('401').json({error: true, message: 'Missing authorization header'});
-        }
-    });
-
-/*
- * Routes 
- */
-app.use('/users', usersRoutes);
-app.use('/items', itemRoutes);
-app.use('/jobs', jobRoutes);
-app.use('/monsters', monsterRoutes);
-app.use('/abilities', abilityRoutes);
-app.use('/statuses', statusRoutes);
-app.use('/bots', botRoutes);
-
-app.listen(port);
-console.log('chat-battle-dungeon RESTful API server started on: ' + port);

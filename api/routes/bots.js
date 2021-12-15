@@ -1,19 +1,15 @@
-import axios from 'axios';
+const axios = require('axios');
 const express = require('express');
-var router = express.Router();
 
-var Bots = require('../models/bots');
-var Configs = require('../models/configs');
+const Bots = require('../models/bots');
+const Configs = require('../models/configs');
 
 const clientId = process.env.TWITCH_CLIENT_ID;
 const clientSecret = process.env.TWITCH_CLIENT_SECRET;
 const BATTLE_BOT_JWT = process.env.BATTLE_BOT_JWT;
-const TWITCH_EXT_CLIENT_ID = process.env.TWITCH_EXT_CLIENT_ID;
-const TWITCH_BOT_CLIENT_ID = process.env.TWITCH_BOT_CLIENT_ID;
-const TWITCH_BOT_USER = process.env.TWITCH_BOT_USER;
-const TWITCH_BOT_PASS = process.env.TWITCH_BOT_PASS;
-const TWITCH_BOT_ACCESS_TOKEN = process.env.TWITCH_BOT_ACCESS_TOKEN;
-const redirectUrl = "https://deusprogrammer.com/util/twitch/registration/callback";
+const redirectUrl = "https://deusprogrammer.com/cbd/registration/callback";
+
+let router = express.Router();
 
 const randomUuid = () => {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -44,25 +40,6 @@ const getProfile = async (accessToken) => {
         console.error("Call to get profile failed! " + error.message);
         throw error;
     }
-}
-
-const createBotContainer = async (userId) => {
-    const url = `http://10.0.0.243:2375/containers/create?name=cbd-bot-${userId}`;
-    let res = await axios.post(url, {
-        Image: "mmain/cbd-bot:latest",
-        Env: [
-            `TWITCH_EXT_CHANNEL_ID=${userId}`,
-            `TWITCH_EXT_CLIENT_ID=${TWITCH_EXT_CLIENT_ID}`,
-            `TWITCH_BOT_ACCESS_TOKEN=${TWITCH_BOT_ACCESS_TOKEN}`,
-            `TWITCH_BOT_USER=${TWITCH_BOT_USER}`,
-            `TWITCH_BOT_PASS=${TWITCH_BOT_PASS}`,
-            `TWITCH_BOT_CLIENT_ID=${TWITCH_BOT_CLIENT_ID}`,
-            "PROFILE_API_URL=https://deusprogrammer.com/api/profile-svc",
-            "BATTLE_API_URL=https://deusprogrammer.com/api/twitch"
-        ]
-    });
-
-    return res.data;
 }
 
 const createTrinaryUser = async (username, userId) => {
