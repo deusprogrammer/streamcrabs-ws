@@ -95,6 +95,7 @@ wss.on('connection', async (ws) => {
 
             return;
         } else if (event.from === "PANEL" && event.type === "PING_SERVER") {
+            console.log("PING SERVER: " + JSON.stringify(event, null, 5));
             let channelPanels = panels[event.channelId];
             let botWs = clients[`BOT-${event.channelId}`];
             if (!channelPanels) {
