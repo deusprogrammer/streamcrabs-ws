@@ -60,9 +60,11 @@ wss.on('connection', async (ws) => {
             delete clients[key];
 
             // Close websockets that are connected to bot
-            panels[key.replace("BOT-", "")].forEach((panel) => {
+            let channelId = key.replace("BOT-", "");
+            panels[channelId].forEach((panel) => {
                 panel.close();
             });
+            panels[channelId] = null;
         });
 
         // Remove dead panels
@@ -70,6 +72,8 @@ wss.on('connection', async (ws) => {
             let channelPanels = panels[channelId];
             panels[channelId] = channelPanels.filter((channelPanel) => {return channelPanel.readyState === WebSocket.OPEN});
         });
+
+        console.log("BOTS CONNECTED: " + Object.keys(clients).length);
     });
     ws.on('message', async (message) => {
         let event = JSON.parse(message);
