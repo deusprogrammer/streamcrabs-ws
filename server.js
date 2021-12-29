@@ -15,8 +15,8 @@ const defaultSecret = Buffer.from(key, 'base64');
 // Setup websocket server for communicating with the panel
 const wss = new WebSocket.Server({ port: 8082 });
 
-const clients = {};
-const panels = {};
+let clients = {};
+let panels = {};
 
 const hmacSHA1 = (hmacSecret, data) => {
     return crypto.createHmac('sha1', hmacSecret).update(data).digest().toString('base64');
