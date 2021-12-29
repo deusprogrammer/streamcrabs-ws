@@ -48,23 +48,21 @@ const getTwitchUsername = async (userId) => {
     return profile.name;
 }
 
-setInterval(() => {
-    // Remove dead connections (TODO this apparently doesn't work perfectly yet)
-    Object.keys(clients).filter((key) => {return clients[key].readyState !== WebSocket.OPEN}).forEach((key) => {
-        console.log("Removing dead connection for client: " + key);
-        delete clients[key];
-    });
-
-    // Remove dead panels
-    Object.keys(panels).forEach((channelId) => {
-        let channelPanels = panels[channelId];
-        panels[channelId] = channelPanels.filter((channelPanel) => {return channelPanel.readyState === WebSocket.OPEN});
-    });
-}, 60 * 60 * 1000);
-
 // Set up a websocket routing system
 wss.on('connection', async (ws) => {
     console.log("CONNECTION");
+    ws.on('close', async () => {
+        console.log("Websocket closed, cleaning up.");
+
+        // Remove dead connections (TODO this apparently doesn't work perfectly yet)
+        clients = Object.keys(clients).filter((key) => {return clients[key].readyState !== WebSocket.OPEN});
+
+        // Remove dead panels
+        Object.keys(panels).forEach((channelId) => {
+            let channelPanels = panels[channelId];
+            panels[channelId] = channelPanels.filter((channelPanel) => {return channelPanel.readyState === WebSocket.OPEN});
+        });
+    });
     ws.on('message', async (message) => {
         let event = JSON.parse(message);
 
