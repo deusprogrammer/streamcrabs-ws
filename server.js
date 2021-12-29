@@ -64,7 +64,7 @@ wss.on('connection', async (ws) => {
             panels[channelId].forEach((panel) => {
                 panel.close();
             });
-            panels[channelId] = null;
+            delete panels[channelId];
         });
 
         // Remove dead panels
