@@ -55,7 +55,15 @@ wss.on('connection', async (ws) => {
         console.log("Websocket closed, cleaning up.");
 
         // Remove dead connections (TODO this apparently doesn't work perfectly yet)
-        clients = Object.keys(clients).filter((key) => {return clients[key].readyState !== WebSocket.OPEN});
+        clients = Object.keys(clients).filter((key) => {return clients[key].readyState !== WebSocket.OPEN}).forEach((key) => {
+            console.log("Removing dead connection for client: " + key);
+            delete clients[key];
+
+            // Close websockets that are connected to bot
+            panels[key.replace("BOT-", "")].forEach((panel) => {
+                panel.close();
+            });
+        });
 
         // Remove dead panels
         Object.keys(panels).forEach((channelId) => {
