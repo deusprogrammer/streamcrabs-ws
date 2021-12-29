@@ -73,9 +73,6 @@ wss.on('connection', async (ws) => {
             let to = clients[`BOT-${event.channelId}`];
             if (!to) {
                 console.error("Cannot find client");
-                if (!channelPanels) {
-                    return;
-                }
 
                 ws.send(JSON.stringify({
                     to: event.from,
