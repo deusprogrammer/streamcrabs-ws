@@ -70,17 +70,29 @@ wss.on('connection', async (ws) => {
 
          // Panel requests don't need jwt authentication
          if (event.from === "PANEL" && event.type === "REGISTER_PANEL") {
+            let to = clients[`BOT-${event.channelId}`];
+            if (!to) {
+                console.error("Cannot find client");
+                if (!channelPanels) {
+                    return;
+                }
+
+                ws.send(JSON.stringify({
+                    to: event.from,
+                    from: `BOT-${event.channelId}`,
+                    type: 'REGISTER_PANEL_FAILURE',
+                    name: event.name,
+                    ts: Date.now()
+                }));
+
+                return;
+            }
+
             if (!panels[event.channelId]) {
                 panels[event.channelId] = [];
             }
             panels[event.channelId].push(ws);
             console.log("REGISTERED PANEL FOR CHANNEL ID " + event.channelId);
-
-            let to = clients[`BOT-${event.channelId}`];
-            if (!to) {
-                console.error("Cannot find client");
-                return;
-            }
 
             let toBot = await Bots.findOne({twitchChannelId: event.channelId}).exec();
             let initEvent = {
@@ -92,6 +104,14 @@ wss.on('connection', async (ws) => {
             }
             initEvent.signature = hmacSHA1(toBot.sharedSecretKey, initEvent.to + initEvent.from + initEvent.ts);
             to.send(JSON.stringify(initEvent));
+
+            ws.send(JSON.stringify({
+                to: event.from,
+                from: `BOT-${event.channelId}`,
+                type: 'REGISTER_PANEL_SUCCESS',
+                name: event.name,
+                ts: Date.now()
+            }));
 
             return;
         } else if (event.from === "PANEL" && event.type === "PING_SERVER") {
