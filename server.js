@@ -99,6 +99,7 @@ wss.on('connection', async (ws) => {
                 from: 'PANEL',
                 type: 'PANEL_INIT',
                 name: event.name,
+                subPanel: event.subPanel,
                 ts: Date.now()
             }
             initEvent.signature = hmacSHA1(toBot.sharedSecretKey, initEvent.to + initEvent.from + initEvent.ts);
@@ -137,6 +138,7 @@ wss.on('connection', async (ws) => {
                 to: `BOT-${event.channelId}`,
                 from: "PANEL",
                 name: event.name,
+                subPanel: event.subPanel,
                 ts: Date.now()
             }));
             return;
